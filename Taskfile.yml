@@ -7,6 +7,13 @@ vars:
 
 tasks:
   default:
+    deps:
+      - dev
+      - pb
+  dev: 
     cmds:
-      - echo "{{.GREETING}}"
-    silent: true
+      - npm run dev
+  pb:
+    dir: pocketbase
+    cmd: ./pocketbase.exe serve
+    
