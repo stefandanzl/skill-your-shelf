@@ -2,10 +2,11 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { pb } from '../lib/client';
+  import type {TopicsRecord} from "../lib/pocketbase-types"
   
   const dispatch = createEventDispatcher();
   
-  let topics = $state([]);
+  let topics = $state([]) as TopicsRecord[];
   
   async function loadTopics() {
     const records = await pb.collection('topics').getList(1, 50, {

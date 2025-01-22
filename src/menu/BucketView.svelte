@@ -1,8 +1,10 @@
 // src/menu/BucketView.svelte
 <script lang="ts">
   import { pb } from '../lib/client';
+  import { type TopicsRecord, type CardsRecord} from "../lib/pocketbase-types";
   
-  let topics = $state([]);
+  
+  let topics = $state([]) as TopicsRecord[];
   let selectedTopicId: string = $state("");
   let bucketCounts = $state<Record<number, number>>({});
   
@@ -12,6 +14,7 @@
     });
     topics = records.items;
   }
+const a: Record<string,string> = {};
 
   async function loadBucketCounts(topicId: string) {
     const records = await pb.collection('cards').getList(1, 500, {
@@ -20,6 +23,7 @@
 
     // Initialize counts
     bucketCounts = records.items.reduce((acc, card) => {
+        //@ts-ignore
       acc[card.level] = (acc[card.level] || 0) + 1;
       return acc;
     }, {});
@@ -54,7 +58,7 @@
     <div class="mb-4">
       <button 
         class="text-blue-500 hover:underline"
-        onclick={() => selectedTopicId = null}>
+        onclick={() => selectedTopicId = ""}>
         ← Back to Topics
       </button>
     </div>
