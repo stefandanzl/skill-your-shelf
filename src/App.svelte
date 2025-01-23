@@ -3,9 +3,13 @@
   import TopicList from './menu/TopicList.svelte';
   import QuestionList from './menu/QuestionList.svelte';
   import BucketView from './menu/BucketView.svelte';
+  import type {View} from "./lib/types"
 
-  let currentView = $state<"topics" | "allQuestions"| "topicQuestions"|"buckets">('topics'); // Can be 'topics', 'allQuestions', 'topicQuestions', 'buckets'
+  let currentView = $state<View>('topics'); 
   let selectedTopicId: string = $state("");
+
+
+  $inspect(currentView, selectedTopicId)
 </script>
 
 <main class="container mx-auto p-4">
@@ -41,11 +45,12 @@
     
    />
   {/if}
-
-  {#if currentView === 'allQuestions' || (currentView === 'topicQuestions' && selectedTopicId)}
-    <QuestionList topicId={selectedTopicId} />
+{#key currentView + selectedTopicId}
+  {#if (currentView === 'allQuestions' && selectedTopicId) || currentView === 'allQuestions' }
+  <QuestionList topicId={selectedTopicId} />
+  {console.log(1)}
   {/if}
-
+{/key}
   {#if currentView === 'buckets'}
     <BucketView />
   {/if}

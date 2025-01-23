@@ -9,20 +9,19 @@
   let questions = $state([]) as CardsRecord[];
   
   async function loadQuestions() {
-    console.log(JSON.stringify(topicId))
     const filter = topicId ? `topic = "${topicId}"` : '';
-    console.log(filter)
     const records : ListResult<CardsRecord> = await pb.collection('cards').getList(1, 50, {
       sort: 'created',
       filter
     })  ;
     questions  = records.items;
-    console.log(JSON.stringify(records,null,2))
   }
 
   $effect(() => {
     loadQuestions();
   });
+
+  
 </script>
 
 <div class="overflow-x-auto mt-4">
@@ -30,6 +29,7 @@
     <thead>
       <tr>
         <th class="px-4 py-2">Question</th>
+        <th class="px-4 py-2">Answer</th>
         <th class="px-4 py-2">Chapter</th>
         <th class="px-4 py-2">Level</th>
         <th class="px-4 py-2">Difficulty</th>
@@ -40,6 +40,7 @@
       {#each questions as question}
         <tr class="border-t">
           <td class="px-4 py-2">{question.question}</td>
+          <td class="px-4 py-2">{question.answer}</td>
           <td class="px-4 py-2">{question.chapter}</td>
           <td class="px-4 py-2">{question.level}</td>
           <td class="px-4 py-2">{question.difficulty}</td>

@@ -3,11 +3,13 @@
   import { createEventDispatcher } from 'svelte';
   import { pb } from '../lib/client.svelte';
   import type {TopicsRecord} from "../lib/pocketbase-types"
+  import type {View} from "../lib/types"
+
   
   // const dispatch = createEventDispatcher();
   
   let topics = $state([]) as TopicsRecord[];
-  let {selectedTopicId = $bindable() ,currentView = $bindable(),  ...rest } = $props();
+  let {selectedTopicId = $bindable() ,currentView = $bindable(),  ...rest } :{selectedTopicId: string, currentView: View} = $props();
     
   
   async function loadTopics() {
@@ -22,7 +24,7 @@
 	// }
 
   function setView(){
-    currentView = "topicQuestions"
+    currentView = "allQuestions"
   }
 
   $effect(() => {
@@ -49,7 +51,8 @@
           <td class="px-4 py-2">
             <button 
               class="px-3 py-1 rounded bg-green-500 text-white"
-              onclick={() => selectedTopicId = topic.id}>
+              onclick={() =>{ selectedTopicId = topic.id;
+              setView()}}>
               View Questions
             </button>
           </td>

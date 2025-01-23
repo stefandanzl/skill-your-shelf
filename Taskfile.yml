@@ -2,8 +2,7 @@
 
 version: '3'
 
-vars:
-  GREETING: Hello, World!
+dotenv: [.env]
 
 tasks:
   default:
@@ -25,4 +24,9 @@ tasks:
     cmds:
       - npm i
       - touch .env
+  example:
+    aliases:
+      - seed
+      - testdata
+    cmd: node pocketbase/seed-data.mjs
     
