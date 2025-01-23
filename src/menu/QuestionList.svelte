@@ -1,34 +1,23 @@
 <script lang="ts">
   import { pb } from '../lib/client.svelte';
-  import type { CardsRecord } from "../lib/pocketbase-types"
-
+  import type {ListResult} from "pocketbase"
+  import type { CardsRecord , CardsResponse, } from "../lib/pocketbase-types"
   
 //   export let topicId: string | null = null;
-  let topicId: (string | null ) = $props()
+  // let topicId: (string | null ) = $props()
+  let {topicId }:{topicId: string | null} = $props();
   let questions = $state([]) as CardsRecord[];
   
-  interface List<T> {
-    items: T[];
-}
-
-type ListResult = {
-    page: number;
-    perPage: number;
-    totalItems: number;
-    totalPages: number;
-    items: CardsRecord[];
-}
-  
   async function loadQuestions() {
-    console.log(topicId)
+    console.log(JSON.stringify(topicId))
     const filter = topicId ? `topic = "${topicId}"` : '';
     console.log(filter)
-    const records: ListResult = await pb.collection('cards').getList(1, 50, {
+    const records : ListResult<CardsRecord> = await pb.collection('cards').getList(1, 50, {
       sort: 'created',
       filter
-    });
+    })  ;
     questions  = records.items;
-    console.log(records)
+    console.log(JSON.stringify(records,null,2))
   }
 
   $effect(() => {
