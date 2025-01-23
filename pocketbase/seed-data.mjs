@@ -6,7 +6,7 @@ const pb = new PocketBase('http://127.0.0.1:8090');
 async function seedData() {
     try {
         // Admin login
-        await pb.admins.authWithPassword('admin@example.com', 'your-password');
+        // await pb.admins.authWithPassword('admin@example.com', 'your-password');
 
         // Create topics
         const topics = [];
@@ -41,12 +41,12 @@ async function seedData() {
 
         // Create test users
         for (let i = 0; i < 3; i++) {
+            const password = faker.internet.password();
             const userData = {
                 email: faker.internet.email(),
-                password: faker.internet.password(),
-                passwordConfirm: faker.internet.password(),
-                name: faker.person.fullName(),
-                verified: true
+                password: password,
+                passwordConfirm: password,
+                name: faker.person.fullName()
             };
             await pb.collection('users').create(userData);
         }
