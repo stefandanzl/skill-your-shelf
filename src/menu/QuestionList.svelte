@@ -1,7 +1,7 @@
-// src/components/QuestionList.svelte
 <script lang="ts">
-  import { pb } from '../lib/client';
+  import { pb } from '../lib/client.svelte';
   import type { CardsRecord } from "../lib/pocketbase-types"
+
   
 //   export let topicId: string | null = null;
   let topicId: (string | null ) = $props()
@@ -20,12 +20,15 @@ type ListResult = {
 }
   
   async function loadQuestions() {
+    console.log(topicId)
     const filter = topicId ? `topic = "${topicId}"` : '';
+    console.log(filter)
     const records: ListResult = await pb.collection('cards').getList(1, 50, {
       sort: 'created',
       filter
     });
     questions  = records.items;
+    console.log(records)
   }
 
   $effect(() => {

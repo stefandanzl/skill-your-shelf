@@ -1,6 +1,5 @@
-// src/menu/BucketView.svelte
 <script lang="ts">
-  import { pb } from '../lib/client';
+  import { pb } from '../lib/client.svelte';
   import { type TopicsRecord, type CardsRecord} from "../lib/pocketbase-types";
   
   

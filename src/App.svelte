@@ -1,11 +1,10 @@
-// src/App.svelte
 <script lang="ts">
   // import { type State } from '@tsconfig/svelte';
   import TopicList from './menu/TopicList.svelte';
   import QuestionList from './menu/QuestionList.svelte';
   import BucketView from './menu/BucketView.svelte';
 
-  let currentView = $state('topics'); // Can be 'topics', 'allQuestions', 'topicQuestions', 'buckets'
+  let currentView = $state<"topics" | "allQuestions"| "topicQuestions"|"buckets">('topics'); // Can be 'topics', 'allQuestions', 'topicQuestions', 'buckets'
   let selectedTopicId: string = $state("");
 </script>
 
@@ -37,12 +36,10 @@
   </div>
 
   {#if currentView === 'topics' || currentView === 'topicQuestions'}
-    <TopicList 
-      on:topicSelect={(e) => {
-        selectedTopicId = e.detail;
-        currentView = 'topicQuestions';
-      }} 
-    />
+    <TopicList bind:selectedTopicId
+    bind:currentView
+    
+   />
   {/if}
 
   {#if currentView === 'allQuestions' || (currentView === 'topicQuestions' && selectedTopicId)}

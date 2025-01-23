@@ -1,18 +1,28 @@
-// src/components/TopicList.svelte
 <script lang="ts">
+
   import { createEventDispatcher } from 'svelte';
-  import { pb } from '../lib/client';
+  import { pb } from '../lib/client.svelte';
   import type {TopicsRecord} from "../lib/pocketbase-types"
   
-  const dispatch = createEventDispatcher();
+  // const dispatch = createEventDispatcher();
   
   let topics = $state([]) as TopicsRecord[];
+  let {selectedTopicId = $bindable() ,currentView = $bindable(),  ...rest } = $props();
+    
   
   async function loadTopics() {
     const records = await pb.collection('topics').getList(1, 50, {
       sort: 'name'
     });
     topics = records.items;
+  }
+
+  // function dispatch(type) {
+	// 	$host().dispatchEvent(new CustomEvent(type));
+	// }
+
+  function setView(){
+    currentView = "topicQuestions"
   }
 
   $effect(() => {
@@ -39,7 +49,7 @@
           <td class="px-4 py-2">
             <button 
               class="px-3 py-1 rounded bg-green-500 text-white"
-              onclick={() => dispatch('topicSelect', topic.id)}>
+              onclick={() => selectedTopicId = topic.id}>
               View Questions
             </button>
           </td>
