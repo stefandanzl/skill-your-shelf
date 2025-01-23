@@ -19,6 +19,7 @@
     "vite": "^6.0.5"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.4.0",
     "pocketbase": "^0.25.1",
     "svelte-pocketbase": "^0.0.4"
   }

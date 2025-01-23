@@ -21,4 +21,8 @@ tasks:
     aliases:
       - type
       - t
+  install:
+    cmds:
+      - npm i
+      - touch .env
     
