@@ -1,56 +1,25 @@
 <script lang="ts">
-  // import { type State } from '@tsconfig/svelte';
   import TopicList from './menu/TopicList.svelte';
   import QuestionList from './menu/QuestionList.svelte';
   import BucketView from './menu/BucketView.svelte';
-  import type {View} from "./lib/types"
+  import Header from './menu/Header.svelte';
+  import type { View } from "./lib/types";
 
   let currentView = $state<View>('topics'); 
-  let selectedTopicId: string = $state("");
-
+  let selectedTopicId = $state("");
 
   $inspect(currentView, selectedTopicId)
 </script>
 
-<main class="container mx-auto p-4">
-  <h1 class="text-2xl mb-4">SkillYourShelf</h1>
-  
-  <div class="flex gap-4 mb-4">
-    <button 
-      class="px-4 py-2 rounded bg-blue-500 text-white"
-      onclick={() => currentView = 'topics'}>
-      Show Topics
-    </button>
-    <button 
-      class="px-4 py-2 rounded bg-blue-500 text-white"
-      onclick={() => {
-        currentView = 'allQuestions';
-        selectedTopicId = "";
-      }}>
-      Show All Questions
-    </button>
-    <button 
-      class="px-4 py-2 rounded bg-blue-500 text-white"
-      onclick={() => {
-        currentView = 'buckets';
-        selectedTopicId = "";
-      }}>
-      Bucket Overview
-    </button>
-  </div>
+<Header bind:currentView bind:selectedTopicId />
 
+<main class="max-w-5xl w-full mx-auto p-4">
   {#if currentView === 'topics' || currentView === 'topicQuestions'}
-    <TopicList bind:selectedTopicId
-    bind:currentView
-    
-   />
+    <TopicList bind:selectedTopicId bind:currentView />
   {/if}
-{#key currentView + selectedTopicId}
-  {#if (currentView === 'allQuestions' && selectedTopicId) || currentView === 'allQuestions' }
-  <QuestionList topicId={selectedTopicId} />
-  {console.log(1)}
+  {#if (currentView === 'allQuestions' && selectedTopicId) || currentView === 'allQuestions'}
+    <QuestionList topicId={selectedTopicId} />
   {/if}
-{/key}
   {#if currentView === 'buckets'}
     <BucketView />
   {/if}

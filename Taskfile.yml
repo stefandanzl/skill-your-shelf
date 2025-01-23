@@ -28,5 +28,5 @@ tasks:
     aliases:
       - seed
       - testdata
-    cmd: node pocketbase/seed-data.mjs
+    cmd: node pocketbase/seed-en.mjs
     
