@@ -1,7 +1,13 @@
-import type { View, TopicId, QuestionId } from "../lib/types";
+import type { View, TopicId, QuestionId, Mode } from "../lib/types";
 
 //currentView, selectedTopicId, questionId
-export const userInput = $state<{ currentView: View; selectedTopicId: TopicId; questionId: QuestionId }>({
+export const userInput = $state<{
+  currentMode: Mode;
+  currentView: View;
+  selectedTopicId: TopicId;
+  questionId: QuestionId;
+}>({
+  currentMode: "menu",
   currentView: "topics",
   selectedTopicId: "",
   questionId: "",

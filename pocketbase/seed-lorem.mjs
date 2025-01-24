@@ -33,7 +33,7 @@ async function seedData() {
                     chapter: faker.lorem.word(),
                     isReversible: faker.datatype.boolean(),
                     difficulty: faker.number.float({ min: 1, max: 5, precision: 0.1 }),
-                    topic: topic.id
+                    topicId: topic.id
                 };
                 await pb.collection('Cards').create(cardData);
             }
@@ -53,7 +53,7 @@ async function seedData() {
 
         console.log('Seed data generated successfully!');
     } catch (error) {
-        console.error('Error generating seed data:', error);
+        console.error('Error generating seed data:', JSON.stringify(error, null, 2));
     }
 }
 

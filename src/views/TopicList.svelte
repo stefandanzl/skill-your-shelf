@@ -5,7 +5,6 @@
   import type {} from "../lib/types";
 
   import { userInput } from "../lib/state.svelte";
-  let { currentView, questionId, selectedTopicId } = $state(userInput);
 
   let topics = $state([]) as TopicsRecord[];
 
@@ -21,7 +20,7 @@
   // }
 
   function setView() {
-    currentView = "allQuestions";
+    userInput.currentView = "topicQuestions";
   }
 
   $effect(() => {
@@ -49,7 +48,7 @@
             <button
               class="px-3 py-1 rounded bg-green-500 text-white"
               onclick={() => {
-                selectedTopicId = topic.id;
+                userInput.selectedTopicId = topic.id;
                 setView();
               }}
             >

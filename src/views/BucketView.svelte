@@ -1,28 +1,28 @@
 <script lang="ts">
-  import { pb } from '../lib/client';
-  import { type TopicsRecord, type CardsRecord} from "../lib/pocketbase-types";
-  
-  
+  import { pb } from "../lib/client";
+  import { type TopicsRecord, type CardsRecord } from "../lib/pocketbase-types";
+
+  import { userInput } from "../lib/state.svelte";
+
   let topics = $state([]) as TopicsRecord[];
-  let selectedTopicId: string = $state("");
   let bucketCounts = $state<Record<number, number>>({});
-  
+
   async function loadTopics() {
-    const records = await pb.collection('topics').getList(1, 50, {
-      sort: 'name'
+    const records = await pb.collection("topics").getList(1, 50, {
+      sort: "name",
     });
     topics = records.items;
   }
-const a: Record<string,string> = {};
+  const a: Record<string, string> = {};
 
   async function loadBucketCounts(topicId: string) {
-    const records = await pb.collection('cards').getList(1, 500, {
-      filter: `topic = "${topicId}"`,
+    const records = await pb.collection("cards").getList(1, 500, {
+      filter: `topicId = "${topicId}"`,
     });
 
     // Initialize counts
     bucketCounts = records.items.reduce((acc, card) => {
-        //@ts-ignore
+      //@ts-ignore
       acc[card.level] = (acc[card.level] || 0) + 1;
       return acc;
     }, {});
@@ -33,20 +33,18 @@ const a: Record<string,string> = {};
   });
 
   $effect(() => {
-    if (selectedTopicId) {
-      loadBucketCounts(selectedTopicId);
+    if (userInput.selectedTopicId) {
+      loadBucketCounts(userInput.selectedTopicId);
     }
   });
 </script>
 
 <div class="p-4">
-  {#if !selectedTopicId}
+  {#if !userInput.selectedTopicId}
     <h2 class="text-xl mb-4">Select a Topic</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {#each topics as topic}
-        <button 
-          class="p-4 border rounded hover:bg-gray-100"
-          onclick={() => selectedTopicId = topic.id}>
+        <button class="p-4 border rounded hover:bg-gray-100" onclick={() => (userInput.selectedTopicId = topic.id)}>
           <h3 class="font-bold">{topic.name}</h3>
           <p class="text-sm text-gray-600">{topic.description}</p>
           <p class="text-sm">Target Level: {topic.targetLevel}</p>
@@ -55,9 +53,7 @@ const a: Record<string,string> = {};
     </div>
   {:else}
     <div class="mb-4">
-      <button 
-        class="text-blue-500 hover:underline"
-        onclick={() => selectedTopicId = ""}>
+      <button class="text-blue-500 hover:underline" onclick={() => (userInput.selectedTopicId = "")}>
         ← Back to Topics
       </button>
     </div>

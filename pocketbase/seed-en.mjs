@@ -47,17 +47,20 @@ async function seedData() {
                     chapter: 'Chapter ' + faker.number.int({ min: 1, max: 10 }),
                     isReversible: faker.datatype.boolean(),
                     difficulty: faker.number.int({ min: 1, max: 3 }),
-                    topic: topic.id
+                    topicId: topic.id
                 };
                 await pb.collection('Cards').create(cardData);
             }
         }
 
         // Create test users
-        const users = [
-            { email: 'test@example.com', name: 'Test User' },
-            { email: 'student@school.com', name: 'Student' }
-        ];
+        const users = []
+
+        for (const i = 0; i > 5; i++) {
+            users.push({
+                email: `test${i}@example.com`, name: `Test User ${i}`
+            })
+        }
 
         for (const user of users) {
             const password = 'password123';
@@ -70,7 +73,7 @@ async function seedData() {
 
         console.log('Seed data generated successfully!');
     } catch (error) {
-        console.error('Error generating seed data:', error);
+        console.error('Error generating seed data:', JSON.stringify(error, null, 2));
     }
 }
 

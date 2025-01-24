@@ -4,12 +4,14 @@
   import type { CardsRecord, CardsResponse } from "../lib/pocketbase-types";
 
   import { userInput } from "../lib/state.svelte";
-  let { currentView, questionId, selectedTopicId } = $state(userInput);
 
   let questions = $state([]) as CardsRecord[];
 
   async function loadQuestions() {
-    const filter = selectedTopicId ? `topic = "${selectedTopicId}"` : "";
+    if (userInput.currentView === "topicQuestions") {
+    }
+
+    const filter = userInput.selectedTopicId ? `topicId = "${userInput.selectedTopicId}"` : "";
     const records: ListResult<CardsRecord> = await pb.collection("cards").getList(1, 50, {
       sort: "created",
       filter,
@@ -43,7 +45,15 @@
           <td class="px-4 py-2">{question.level}</td>
           <td class="px-4 py-2">{question.difficulty}</td>
           <td class="px-4 py-2">
-            <button class="px-3 py-1 rounded bg-blue-500 text-white"> Edit </button>
+            <button
+              onclick={() => {
+                userInput.currentView = "edit";
+                userInput.questionId = question.id;
+              }}
+              class="px-3 py-1 rounded bg-blue-500 text-white"
+            >
+              Edit
+            </button>
           </td>
         </tr>
       {/each}

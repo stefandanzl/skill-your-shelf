@@ -2,7 +2,6 @@
   import type { View } from "../lib/types";
 
   import { userInput } from "../lib/state.svelte";
-  let { currentView, selectedTopicId, questionId } = $state(userInput);
 </script>
 
 <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-10">
@@ -11,25 +10,25 @@
 
     <nav class="flex gap-4">
       <button
-        class="px-4 py-2 rounded {currentView === 'topics' ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
-        onclick={() => (currentView = "topics")}
+        class="px-4 py-2 rounded {userInput.currentView === 'topics' ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
+        onclick={() => (userInput.currentView = "topics")}
       >
         Topics
       </button>
       <button
-        class="px-4 py-2 rounded {currentView === 'allQuestions' ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
+        class="px-4 py-2 rounded {userInput.currentView === 'allQuestions' ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
         onclick={() => {
-          currentView = "allQuestions";
-          selectedTopicId = "";
+          userInput.currentView = "allQuestions";
+          userInput.selectedTopicId = "";
         }}
       >
         All Questions
       </button>
       <button
-        class="px-4 py-2 rounded {currentView === 'buckets' ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
+        class="px-4 py-2 rounded {userInput.currentView === 'buckets' ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
         onclick={() => {
-          currentView = "buckets";
-          selectedTopicId = "";
+          userInput.currentView = "buckets";
+          userInput.selectedTopicId = "";
         }}
       >
         Bucket Overview

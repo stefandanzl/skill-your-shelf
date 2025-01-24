@@ -50,7 +50,7 @@ export type CardsRecord = {
 	levelChanges?: number
 	quesitonMedia?: string[]
 	question?: string
-	topic: RecordIdString
+	topicId?: RecordIdString
 	updated?: IsoDateString
 }
 

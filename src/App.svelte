@@ -1,30 +1,14 @@
 <script lang="ts">
-  import TopicList from "./menu/TopicList.svelte";
-  import QuestionList from "./menu/QuestionList.svelte";
-  import BucketView from "./menu/BucketView.svelte";
-  import Header from "./menu/Header.svelte";
-  import type { View } from "./lib/types";
-  import QuestionEdit from "./menu/QuestionEdit.svelte";
-
   import { userInput } from "./lib/state.svelte";
-  let { currentView, selectedTopicId, questionId } = $state(userInput);
-
-  $inspect(currentView, selectedTopicId);
+  import MenuView from "./views/MenuView.svelte";
+  import PracticeView from "./views/PracticeView.svelte";
 </script>
 
-<Header />
-
-<main class="max-w-5xl w-full mx-auto p-4">
-  {#if currentView === "topics" || currentView === "topicQuestions"}
-    <TopicList />
+<main>
+  {#if userInput.currentMode === "menu"}
+    <MenuView />
   {/if}
-  {#if (currentView === "allQuestions" && selectedTopicId) || currentView === "allQuestions"}
-    <QuestionList />
-  {/if}
-  {#if currentView === "buckets"}
-    <BucketView />
-  {/if}
-  {#if currentView === "edit"}
-    <QuestionEdit />
+  {#if userInput.currentMode === "practice"}
+    <PracticeView />
   {/if}
 </main>
