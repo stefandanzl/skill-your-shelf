@@ -17,6 +17,11 @@
       filter,
     });
     questions = records.items;
+
+    userInput.practiceQuestions = [];
+    questions.forEach((q) => {
+      userInput.practiceQuestions.push(q.id);
+    });
   }
 
   $effect(() => {

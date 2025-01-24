@@ -33,6 +33,15 @@
       >
         Bucket Overview
       </button>
+      {#if userInput.currentMode === "menu" && ["topicQuestions", "allQuestions"].includes(userInput.currentView)}
+        <button
+          onclick={() => {
+            userInput.currentMode = "practice";
+          }}
+        >
+          Practice Selection
+        </button>
+      {/if}
     </nav>
   </div>
 </header>

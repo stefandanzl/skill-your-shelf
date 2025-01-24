@@ -2,6 +2,8 @@
   import { userInput } from "./lib/state.svelte";
   import MenuView from "./views/MenuView.svelte";
   import PracticeView from "./views/PracticeView.svelte";
+
+  $inspect(userInput);
 </script>
 
 <main>

@@ -6,11 +6,13 @@ export const userInput = $state<{
   currentView: View;
   selectedTopicId: TopicId;
   questionId: QuestionId;
+  practiceQuestions: QuestionId[];
 }>({
   currentMode: "menu",
   currentView: "topics",
   selectedTopicId: "",
   questionId: "",
+  practiceQuestions: [],
 });
 
 if (true) {
