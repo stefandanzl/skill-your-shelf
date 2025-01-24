@@ -1,20 +1,22 @@
 <script lang="ts">
   import { pb } from "../lib/client";
   import type { CardsRecord } from "../lib/pocketbase-types";
+
   import { userInput } from "../lib/state.svelte";
+  let { currentView, selectedTopicId, questionId } = $state(userInput);
+  // let { onSave } = $props()
 
-  let { questionId, topicId } = userInput ;
-// let { onSave } = $props()
+  //     onSave: () => void;
+  //   } = $props();
 
-//     questionId: string | null;
-//     topicId: string;
-//     onSave: () => void;
-//   } = $props();
+  function onSave() {
+    //
+  }
 
-  let question = $state<string|undefined>("")
-  let answer = $state<string|undefined>("");
-  let isReversible = $state<boolean|undefined>(false);
-  let difficulty = $state<number|undefined>(1);
+  let question = $state<string | undefined>("");
+  let answer = $state<string | undefined>("");
+  let isReversible = $state<boolean | undefined>(false);
+  let difficulty = $state<number | undefined>(1);
   let isLoading = $state(false);
 
   $effect(() => {
@@ -44,7 +46,7 @@
         answer,
         isReversible,
         difficulty,
-        topic: topicId,
+        topic: selectedTopicId,
         level: 0,
         levelChanges: 0,
       };
@@ -63,11 +65,7 @@
   }
 
   async function handleDelete() {
-    if (
-      !questionId ||
-      !confirm("Are you sure you want to delete this question?")
-    )
-      return;
+    if (!questionId || !confirm("Are you sure you want to delete this question?")) return;
     try {
       isLoading = true;
       await pb.collection("Cards").delete(questionId);
@@ -80,8 +78,7 @@
 
 <form class="space-y-4" onsubmit={handleSubmit}>
   <div>
-    <label class="block text-sm font-medium mb-1" for="question">Question</label
-    >
+    <label class="block text-sm font-medium mb-1" for="question">Question</label>
     <textarea>
       id="question" bind:value={question}
       required class="w-full p-2 border rounded" rows="3"
@@ -104,14 +101,7 @@
 
     <div class="flex items-center gap-2">
       <label class="text-sm" for="difficulty">Difficulty:</label>
-      <input
-        id="difficulty"
-        type="number"
-        bind:value={difficulty}
-        min="1"
-        max="5"
-        class="w-16 p-1 border rounded"
-      />
+      <input id="difficulty" type="number" bind:value={difficulty} min="1" max="5" class="w-16 p-1 border rounded" />
     </div>
   </div>
 

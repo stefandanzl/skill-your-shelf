@@ -1,6 +1,7 @@
 {
   "plugins": ["prettier-plugin-svelte"],
   "svelteSortOrder": "options-styles-scripts-markup",
+
   "svelteStrictMode": false,
   "svelteIndentScriptAndStyle": true,
   "pluginSearchDirs": ["."],

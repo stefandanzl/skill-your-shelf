@@ -1,30 +1,27 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+  import { pb } from "../lib/client";
+  import type { TopicsRecord } from "../lib/pocketbase-types";
+  import type {} from "../lib/types";
 
-  import { createEventDispatcher } from 'svelte';
-  import { pb } from '../lib/client';
-  import type {TopicsRecord} from "../lib/pocketbase-types"
-  import type {View} from "../lib/types"
+  import { userInput } from "../lib/state.svelte";
+  let { currentView, questionId, selectedTopicId } = $state(userInput);
 
-  
-  // const dispatch = createEventDispatcher();
-  
   let topics = $state([]) as TopicsRecord[];
-  let {selectedTopicId = $bindable() ,currentView = $bindable(),  ...rest } :{selectedTopicId: string, currentView: View} = $props();
-    
-  
+
   async function loadTopics() {
-    const records = await pb.collection('topics').getList(1, 50, {
-      sort: 'name'
+    const records = await pb.collection("topics").getList(1, 50, {
+      sort: "name",
     });
     topics = records.items;
   }
 
   // function dispatch(type) {
-	// 	$host().dispatchEvent(new CustomEvent(type));
-	// }
+  // 	$host().dispatchEvent(new CustomEvent(type));
+  // }
 
-  function setView(){
-    currentView = "allQuestions"
+  function setView() {
+    currentView = "allQuestions";
   }
 
   $effect(() => {
@@ -49,10 +46,13 @@
           <td class="px-4 py-2">{topic.description}</td>
           <td class="px-4 py-2">{topic.targetLevel}</td>
           <td class="px-4 py-2">
-            <button 
+            <button
               class="px-3 py-1 rounded bg-green-500 text-white"
-              onclick={() =>{ selectedTopicId = topic.id;
-              setView()}}>
+              onclick={() => {
+                selectedTopicId = topic.id;
+                setView();
+              }}
+            >
               View Questions
             </button>
           </td>
