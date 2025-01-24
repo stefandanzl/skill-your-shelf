@@ -1,7 +1,7 @@
 <script lang="ts">
 
   import { createEventDispatcher } from 'svelte';
-  import { pb } from '../lib/client.svelte';
+  import { pb } from '../lib/client';
   import type {TopicsRecord} from "../lib/pocketbase-types"
   import type {View} from "../lib/types"
 

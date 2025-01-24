@@ -1,26 +1,32 @@
 <script lang="ts">
-  import TopicList from './menu/TopicList.svelte';
-  import QuestionList from './menu/QuestionList.svelte';
-  import BucketView from './menu/BucketView.svelte';
-  import Header from './menu/Header.svelte';
-  import type { View } from "./lib/types";
+import TopicList from './menu/TopicList.svelte';
+import QuestionList from './menu/QuestionList.svelte';
+import BucketView from './menu/BucketView.svelte';
+import Header from './menu/Header.svelte';
+import type {
+    View
+} from "./lib/types";
+import QuestionEdit from './menu/QuestionEdit.svelte';
 
-  let currentView = $state<View>('topics'); 
-  let selectedTopicId = $state("");
+let currentView = $state < View > ('topics');
+let selectedTopicId = $state("");
 
-  $inspect(currentView, selectedTopicId)
+$inspect(currentView, selectedTopicId)
 </script>
 
 <Header bind:currentView bind:selectedTopicId />
 
 <main class="max-w-5xl w-full mx-auto p-4">
-  {#if currentView === 'topics' || currentView === 'topicQuestions'}
+    {#if currentView === 'topics' || currentView === 'topicQuestions'}
     <TopicList bind:selectedTopicId bind:currentView />
-  {/if}
-  {#if (currentView === 'allQuestions' && selectedTopicId) || currentView === 'allQuestions'}
+    {/if}
+    {#if (currentView === 'allQuestions' && selectedTopicId) || currentView === 'allQuestions'}
     <QuestionList topicId={selectedTopicId} />
-  {/if}
-  {#if currentView === 'buckets'}
+    {/if}
+    {#if currentView === 'buckets'}
     <BucketView />
-  {/if}
+    {/if}
+    {#if currentView === 'edit'}
+    <QuestionEdit  />
+    {/if}
 </main>

@@ -1,2 +1,1 @@
-export type View = "topics" | "allQuestions"| "topicQuestions"|"buckets"
-
+export type View = "topics" | "allQuestions" | "topicQuestions" | "buckets" | "edit";

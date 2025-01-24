@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { pb } from '../lib/client.svelte';
+  import { pb } from '../lib/client';
   import { type TopicsRecord, type CardsRecord} from "../lib/pocketbase-types";
   
   
