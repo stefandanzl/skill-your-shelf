@@ -10,12 +10,6 @@
 
     <nav class="flex gap-4">
       <button
-        class="px-4 py-2 rounded {userInput.currentView === 'topics' ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
-        onclick={() => (userInput.currentView = "topics")}
-      >
-        Topics
-      </button>
-      <button
         class="px-4 py-2 rounded {userInput.currentView === 'allQuestions' ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
         onclick={() => {
           userInput.currentView = "allQuestions";
@@ -23,6 +17,12 @@
         }}
       >
         All Questions
+      </button>
+      <button
+        class="px-4 py-2 rounded {userInput.currentView === 'topics' ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
+        onclick={() => (userInput.currentView = "topics")}
+      >
+        All Topics
       </button>
       <button
         class="px-4 py-2 rounded {userInput.currentView === 'buckets' ? 'bg-blue-600 text-white' : 'bg-gray-200'}"
@@ -33,7 +33,7 @@
       >
         Bucket Overview
       </button>
-      {#if userInput.currentMode === "menu" && ["topicQuestions", "allQuestions"].includes(userInput.currentView)}
+      {#if userInput.currentMode === "menu" && ["topicQuestions", "allQuestions"].includes(userInput.currentView) && userInput.practiceQuestions.length !== 0}
         <button
           onclick={() => {
             userInput.currentMode = "practice";

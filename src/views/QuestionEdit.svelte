@@ -41,6 +41,10 @@
       difficulty = record.difficulty;
       topicId = record.topicId;
 
+      if (!topicId) {
+        topicName = "";
+        return;
+      }
       const topicRecord = await pb.collection("Topics")?.getOne<TopicsRecord>(record.topicId!);
       topicName = topicRecord.name;
       console.log("RECORD:", record);
