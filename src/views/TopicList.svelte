@@ -35,6 +35,17 @@
         <th class="px-4 py-2">Name</th>
         <th class="px-4 py-2">Description</th>
         <th class="px-4 py-2">Target Level</th>
+        <th class="px-4 py-2">
+          <button
+            class="px-3 py-1 rounded bg-green-500 text-white"
+            onclick={() => {
+              userInput.selectedTopicId = undefined;
+              userInput.currentView = "topicEdit";
+            }}
+          >
+            Create Topic
+          </button>
+        </th>
         <th class="px-4 py-2">Actions</th>
       </tr>
     </thead>
@@ -44,6 +55,17 @@
           <td class="px-4 py-2">{topic.name}</td>
           <td class="px-4 py-2">{topic.description}</td>
           <td class="px-4 py-2">{topic.targetLevel}</td>
+          <td class="px-4 py-2">
+            <button
+              class="px-3 py-1 rounded bg-green-500 text-white"
+              onclick={() => {
+                userInput.selectedTopicId = topic.id;
+                userInput.currentView = "topicEdit";
+              }}
+            >
+              Edit Topic
+            </button>
+          </td>
           <td class="px-4 py-2">
             <button
               class="px-3 py-1 rounded bg-green-500 text-white"

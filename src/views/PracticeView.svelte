@@ -80,11 +80,23 @@
     }
   }
 
+  function exitPractice() {
+    userInput.currentMode = "menu";
+    userInput.practiceQuestions = [];
+  }
+
   function nextQuestion() {
+    console.log(currentIndex, questions.length);
     if (currentIndex < questions.length - 1) {
       currentIndex++;
       showAnswer = false;
+    } else {
+      exitPractice();
     }
+    // if (currentIndex === questions.length - 1) {
+    //   console.log()
+    //   exitPractice();
+    // }
   }
 
   function previousQuestion() {
@@ -102,13 +114,7 @@
 <div use:swipe={() => ({ timeframe: 300, minSwipeDistance: 60 })} onswipe={handleSwipe} class="max-w-2xl mx-auto p-4">
   <nav class="flex gap-4">
     <!-- {#if userInput.currentMode === "menu" && ["topicQuestions", "allQuestions"].includes(userInput.currentView)} -->
-    <button
-      onclick={() => {
-        userInput.currentMode = "menu";
-      }}
-    >
-      Exit Practice Selection
-    </button>
+    <button onclick={exitPractice}> Exit Practice Selection </button>
     <!-- {/if} -->
   </nav>
 
@@ -137,11 +143,21 @@
           </div>
 
           <div class="flex gap-4 mt-4">
-            <button onclick={() => updateLevel(1)} class="flex-1 py-2 bg-green-500 text-white rounded">
-              Knew It (+1)
-            </button>
-            <button onclick={() => updateLevel(-1)} class="flex-1 py-2 bg-red-500 text-white rounded">
+            <button
+              onclick={() => {
+                updateLevel(-1);
+              }}
+              class="flex-1 py-2 bg-red-500 text-white rounded"
+            >
               Didn't Know (-1)
+            </button>
+            <button
+              onclick={() => {
+                updateLevel(1);
+              }}
+              class="flex-1 py-2 bg-green-500 text-white rounded"
+            >
+              Knew It (+1)
             </button>
           </div>
         {/if}

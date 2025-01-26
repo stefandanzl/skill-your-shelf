@@ -1,11 +1,14 @@
 <script lang="ts">
-  import { preventDefault } from "../lib/util";
+  import { preventDefault, showToast } from "../lib/util";
   import { pb } from "../lib/client";
   import type { CardsRecord, TopicsRecord } from "../lib/pocketbase-types";
 
   import { userInput } from "../lib/state.svelte";
+  import BoolModal from "./BoolModal.svelte";
 
-  function onSave() {}
+  function onSave() {
+    showToast("Question saved successfully!");
+  }
 
   let question = $state<string | undefined>("");
   let answer = $state<string | undefined>("");
@@ -14,6 +17,7 @@
   let isLoading = $state(false);
   let topicId = $state<string | undefined>("");
   let topicName = $state<string | undefined>("");
+  let modalData = $state({ show: false, text: "", result: undefined });
 
   const formData = $state<{
     question: string | undefined;
@@ -24,12 +28,26 @@
   }>({ question: "", answer: "", isReversible: false, difficulty: 1, isLoading: false });
 
   $effect(() => {
-    console.log("EDIT");
     $inspect(userInput);
     if (userInput.questionId) {
       loadQuestion();
+    } else if (userInput.selectedTopicId) {
+      topicId = userInput.selectedTopicId;
+      loadTopicName();
     }
   });
+
+  async function showModal(text: string) {
+    modalData.text = text;
+    modalData.show = true;
+  }
+
+  function closeModal() {}
+
+  async function loadTopicName() {
+    const topicRecord = await pb.collection("Topics")?.getOne<TopicsRecord>(topicId!);
+    topicName = topicRecord.name;
+  }
 
   async function loadQuestion() {
     try {
@@ -45,8 +63,7 @@
         topicName = "";
         return;
       }
-      const topicRecord = await pb.collection("Topics")?.getOne<TopicsRecord>(record.topicId!);
-      topicName = topicRecord.name;
+      await loadTopicName();
       console.log("RECORD:", record);
     } catch (error) {
       console.error("Failed to load question:", error);
@@ -86,6 +103,12 @@
         response = await pb.collection("Cards").update(userInput.questionId, data);
       } else {
         response = await pb.collection("Cards").create(data);
+        userInput.questionId = response.id;
+        try {
+          loadQuestion();
+        } catch (error) {
+          console.log("Error creating question", error);
+        }
       }
 
       onSave();
@@ -93,12 +116,21 @@
       console.error("Failed to save question:", error);
     } finally {
       isLoading = false;
-      alert(JSON.stringify(response, null, 2));
+      // alert(JSON.stringify(response, null, 2));
     }
   }
-
+  function showDeleteModal() {
+    // if (!userInput.questionId || !confirm("Are you sure you want to delete this question?")) return;
+    if (!userInput.questionId) {
+      return;
+    } else {
+      showModal("Are you sure you want to delete this question?");
+    }
+  }
   async function handleDelete() {
-    if (!userInput.questionId || !confirm("Are you sure you want to delete this question?")) return;
+    if (!userInput.questionId) {
+      return;
+    }
     try {
       isLoading = true;
       const response = await pb.collection("Cards").delete(userInput.questionId);
@@ -112,6 +144,13 @@
       onSave();
     } catch (error) {
       console.error("Failed to delete question:", error);
+    }
+  }
+
+  function confirmDelete(bool: boolean) {
+    modalData.show = false;
+    if (bool) {
+      handleDelete();
     }
   }
 </script>
@@ -156,7 +195,7 @@
     {#if userInput.questionId}
       <button
         type="button"
-        onclick={handleDelete}
+        onclick={showDeleteModal}
         disabled={isLoading}
         class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
       >
@@ -164,4 +203,7 @@
       </button>
     {/if}
   </div>
+  {#if modalData.show}
+    <bool-modal text={modalData.text} onyes={() => confirmDelete(true)} onno={() => confirmDelete(false)}></bool-modal>
+  {/if}
 </form>

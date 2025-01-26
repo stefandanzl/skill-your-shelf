@@ -35,6 +35,7 @@
       </button>
       {#if userInput.currentMode === "menu" && (["topicQuestions", "allQuestions", "buckets"] as View[]).includes(userInput.currentView) && userInput.practiceQuestions.length !== 0}
         <button
+          style="background-color: green;"
           onclick={() => {
             userInput.currentMode = "practice";
           }}

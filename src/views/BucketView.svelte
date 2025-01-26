@@ -19,6 +19,8 @@
     topics = records.items;
   }
 
+  $inspect("BUCKET Counts", bucketCounts);
+
   async function loadBucketCounts(topicId: string) {
     const records = await pb.collection("cards").getList<CardsRecord>(1, 500, {
       filter: `topicId = "${topicId}"`,
@@ -27,22 +29,43 @@
 
     bucketCounts = records.items.reduce(
       (acc, card) => {
-        const level = card.level?.toString() ?? "0";
+        let level = "";
+        if (typeof card.level !== "undefined") {
+          if (card.level < targetLevel) {
+            level = card.level.toString();
+          } else {
+            level = targetLevel.toString();
+          }
+        } else {
+          level = "0";
+        }
+
         acc[level] = (acc[level] || 0) + 1;
         return acc;
       },
       {} as Record<string, number>,
     );
+
+    console.log("BUCKET Counts", bucketCounts);
   }
 
   async function loadLevelQuestions() {
     if (selectedLevels.length === 0) {
       questionList = [];
+      userInput.practiceQuestions = [];
       return;
     }
 
-    const levelFilters = selectedLevels.map((lv) => `level = ${lv}`).join("||");
-    const filter = `topicId = "${userInput.selectedTopicId}" && (${levelFilters})`;
+    const levelFilters = selectedLevels
+      .filter((lv) => lv <= targetLevel)
+      .map((lv) => `level = ${lv}`)
+      .join("||");
+    let filter = `topicId = "${userInput.selectedTopicId}" && (${levelFilters}`; //)
+    if (selectedLevels.includes(targetLevel)) {
+      filter += `|| level >= ${targetLevel})`;
+    } else {
+      filter += `)`;
+    }
 
     const records = await pb.collection("cards").getList<CardsRecord>(1, 500, {
       filter,

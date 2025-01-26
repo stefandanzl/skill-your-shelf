@@ -6,6 +6,7 @@
     "module": "ESNext",
     "resolveJsonModule": true,
     "composite": true,
+    
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.
      * Disable checkJs if you'd like to use dynamic types in JS.
@@ -17,6 +18,7 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "strict": true,
+    
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "src/**/*.svelte.ts"]
 }

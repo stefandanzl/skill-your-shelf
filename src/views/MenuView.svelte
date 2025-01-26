@@ -7,6 +7,7 @@
   import QuestionEdit from "./QuestionEdit.svelte";
 
   import { userInput } from "../lib/state.svelte";
+  import TopicEdit from "./TopicEdit.svelte";
 
   //   $inspect(userInput.currentView, userInput.selectedTopicId);
 </script>
@@ -24,8 +25,11 @@
     {#if userInput.currentView === "buckets"}
       <BucketView />
     {/if}
-    {#if userInput.currentView === "edit"}
+    {#if userInput.currentView === "questionEdit"}
       <QuestionEdit />
+    {/if}
+    {#if userInput.currentView === "topicEdit"}
+      <TopicEdit />
     {/if}
   </div>
 </div>

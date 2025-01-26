@@ -40,7 +40,18 @@
         <th class="px-4 py-2">Chapter</th>
         <th class="px-4 py-2">Level</th>
         <th class="px-4 py-2">Difficulty</th>
-        <th class="px-4 py-2">Actions</th>
+        <th class="px-4 py-2">
+          <button
+            onclick={() => {
+              userInput.currentView = "questionEdit";
+              userInput.questionId = "";
+              // userInput.selectedTopicId = ;
+            }}
+            class="px-3 py-1 rounded bg-blue-500 text-white"
+          >
+            Create
+          </button>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -54,7 +65,7 @@
           <td class="px-4 py-2">
             <button
               onclick={() => {
-                userInput.currentView = "edit";
+                userInput.currentView = "questionEdit";
                 userInput.questionId = question.id;
               }}
               class="px-3 py-1 rounded bg-blue-500 text-white"
