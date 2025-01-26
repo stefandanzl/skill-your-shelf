@@ -49,6 +49,12 @@
       sort: "level",
     });
     questionList = records.items;
+    // userInput.practiceQuestions = [];
+    const list: string[] = [];
+    questionList.forEach((qu) => {
+      list.push(qu.id);
+    });
+    userInput.practiceQuestions = list;
   }
 
   function handleTopicSelect(topic: TopicsRecord) {
@@ -105,7 +111,8 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {#each Array.from({ length: targetLevel + 1 }, (_, i) => i) as level}
         <button
-          class="p-4 border rounded {selectedLevels.includes(level) ? 'bg-blue-50' : 'bg-white hover:bg-gray-100'}"
+          class="p-4 border rounded bg-white hover:bg-gray-100"
+          style="background-color: {selectedLevels.includes(level) ? 'green' : ''}"
           disabled={!bucketCounts[level?.toString()]}
           onclick={() => toggleLevel(level)}
         >

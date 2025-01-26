@@ -4,9 +4,28 @@
 
   function getColor(level: number | undefined): string {
     if (typeof level === "undefined") level = 0;
-    const red = Math.max(0, 255 - (level / targetLevel) * 255);
-    const green = Math.min(255, (level / targetLevel) * 255);
-    return `rgb(${red}, ${green}, 0)`;
+    const startColor = "#482D2D"; // default start color (white)
+    const endColor = "#345634"; // default end color (black)
+    function hexToRgb(hex: string) {
+      const bigint = parseInt(hex.slice(1), 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return [r, g, b];
+    }
+
+    function rgbToHex(r: number, g: number, b: number) {
+      return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+    }
+
+    const startRgb = hexToRgb(startColor);
+    const endRgb = hexToRgb(endColor);
+
+    const r = Math.round(startRgb[0] + (endRgb[0] - startRgb[0]) * (level / targetLevel));
+    const g = Math.round(startRgb[1] + (endRgb[1] - startRgb[1]) * (level / targetLevel));
+    const b = Math.round(startRgb[2] + (endRgb[2] - startRgb[2]) * (level / targetLevel));
+
+    return rgbToHex(r, g, b);
   }
 </script>
 
