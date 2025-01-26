@@ -5,6 +5,8 @@
 
   import { userInput } from "../lib/state.svelte";
 
+  let { key = "" } = $props();
+
   let questions = $state([]) as CardsRecord[];
 
   async function loadQuestions() {
