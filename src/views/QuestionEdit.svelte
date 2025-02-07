@@ -2,7 +2,6 @@
   import { preventDefault, showToast } from "../lib/util";
   import { pb } from "../lib/client";
   import type { CardsRecord, TopicsRecord } from "../lib/pocketbase-types";
-
   import { userInput } from "../lib/state.svelte";
   import BoolModal from "./BoolModal.svelte";
 
@@ -17,15 +16,8 @@
   let isLoading = $state(false);
   let topicId = $state<string | undefined>("");
   let topicName = $state<string | undefined>("");
+  let topics = $state<TopicsRecord[]>([]);
   let modalData = $state({ show: false, text: "", result: undefined });
-
-  const formData = $state<{
-    question: string | undefined;
-    answer: string | undefined;
-    isReversible: boolean | undefined;
-    difficulty: number | undefined;
-    isLoading: false;
-  }>({ question: "", answer: "", isReversible: false, difficulty: 1, isLoading: false });
 
   $effect(() => {
     $inspect(userInput);
@@ -35,7 +27,18 @@
       topicId = userInput.selectedTopicId;
       loadTopicName();
     }
+    // Load topics when component mounts
+    loadTopics();
   });
+
+  async function loadTopics() {
+    try {
+      const records = await pb.collection("Topics").getFullList<TopicsRecord>();
+      topics = records;
+    } catch (error) {
+      console.error("Failed to load topics:", error);
+    }
+  }
 
   async function showModal(text: string) {
     modalData.text = text;
@@ -45,7 +48,8 @@
   function closeModal() {}
 
   async function loadTopicName() {
-    const topicRecord = await pb.collection("Topics")?.getOne<TopicsRecord>(topicId!);
+    if (!topicId) return;
+    const topicRecord = await pb.collection("Topics")?.getOne<TopicsRecord>(topicId);
     topicName = topicRecord.name;
   }
 
@@ -59,11 +63,9 @@
       difficulty = record.difficulty;
       topicId = record.topicId;
 
-      if (!topicId) {
-        topicName = "";
-        return;
+      if (topicId) {
+        await loadTopicName();
       }
-      await loadTopicName();
       console.log("RECORD:", record);
     } catch (error) {
       console.error("Failed to load question:", error);
@@ -71,22 +73,6 @@
       isLoading = false;
     }
   }
-
-  //   export type CardsRecord = {
-  // 	answer?: string
-  // 	answerMedia?: string[]
-  // 	chapter?: string
-  // 	created?: IsoDateString
-  // 	difficulty?: number
-  // 	id: string
-  // 	isReversible?: boolean
-  // 	level?: number
-  // 	levelChanges?: number
-  // 	quesitonMedia?: string[]
-  // 	question?: string
-  // 	topic: RecordIdString
-  // 	updated?: IsoDateString
-  // }
 
   async function handleSubmit() {
     let response;
@@ -97,7 +83,7 @@
         answer,
         isReversible,
         difficulty,
-        topicId,
+        topicId: topicId,
       };
       if (userInput.questionId) {
         response = await pb.collection("Cards").update(userInput.questionId, data);
@@ -116,17 +102,17 @@
       console.error("Failed to save question:", error);
     } finally {
       isLoading = false;
-      // alert(JSON.stringify(response, null, 2));
     }
   }
+
   function showDeleteModal() {
-    // if (!userInput.questionId || !confirm("Are you sure you want to delete this question?")) return;
     if (!userInput.questionId) {
       return;
     } else {
       showModal("Are you sure you want to delete this question?");
     }
   }
+
   async function handleDelete() {
     if (!userInput.questionId) {
       return;
@@ -153,12 +139,18 @@
       handleDelete();
     }
   }
+
+  function handleTopicChange(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    topicId = select.value;
+    const selectedTopic = topics.find((t) => t.id === topicId);
+    topicName = selectedTopic?.name || "";
+  }
 </script>
 
 <form class="space-y-4">
   <div>
     <label class="block text-sm font-medium mb-1" for="question">Question</label>
-
     <textarea id="question" bind:value={question} required class="w-full p-2 border rounded" rows="3"></textarea>
   </div>
 
@@ -168,7 +160,19 @@
   </div>
 
   <div>
-    <label class="block text-sm font-medium mb-1" for="answer">Topic: {topicName}</label>
+    <label class="block text-sm font-medium mb-1" for="topic">Topic</label>
+    <select
+      id="topic"
+      bind:value={topicId}
+      onchange={handleTopicChange}
+      class="w-full p-2 border rounded bg-white"
+      required
+    >
+      <option value="">Select a topic</option>
+      {#each topics as topic}
+        <option value={topic.id}>{topic.name}</option>
+      {/each}
+    </select>
   </div>
 
   <div class="flex items-center gap-4">
@@ -203,6 +207,7 @@
       </button>
     {/if}
   </div>
+
   {#if modalData.show}
     <bool-modal text={modalData.text} onyes={() => confirmDelete(true)} onno={() => confirmDelete(false)}></bool-modal>
   {/if}

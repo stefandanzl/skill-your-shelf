@@ -5,25 +5,55 @@
   import { userInput } from "../lib/state.svelte";
   import type { QuestionId } from "../lib/types";
   import { pan, swipe, type PanCustomEvent, type GestureCustomEvent, type SwipeCustomEvent } from "svelte-gestures";
+  import { onMount, onDestroy } from "svelte";
 
   let questions = $state<CardsRecord[]>([]);
   let currentIndex = $state(0);
-  let showAnswer = $state(false);
+  let isAnswerBlurred = $state(true);
   let isLoading = $state(false);
+  let showShortcuts = $state(false);
 
-  //   async function loadQuestions(topicId?: string) {
-  //     try {
-  //       isLoading = true;
-  //       const filter = topicId ? `topic = "${topicId}"` : "";
-  //       const records = await pb.collection("Cards").getFullList<CardsRecord>({ filter });
-  //       questions = shuffleArray([...records]);
-  //     } finally {
-  //       isLoading = false;
-  //     }
-  //   }
-  /**
-   *   https://www.npmjs.com/package/svelte-gestures
-   */
+  onMount(() => {
+    document.addEventListener("keydown", handleKeydown);
+    return () => {
+      document.removeEventListener("keydown", handleKeydown);
+    };
+  });
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+      return; // Ignore if user is typing in an input
+    }
+
+    switch (event.key.toLowerCase()) {
+      case "k":
+      case " ":
+        event.preventDefault();
+        toggleAnswer();
+        break;
+      case "l":
+        event.preventDefault();
+        nextQuestion();
+        break;
+      case "j":
+        event.preventDefault();
+        previousQuestion();
+        break;
+      case "m":
+        event.preventDefault();
+        if (!isAnswerBlurred) updateLevel(1);
+        break;
+      case "n":
+        event.preventDefault();
+        if (!isAnswerBlurred) updateLevel(-1);
+        break;
+      case "?":
+        event.preventDefault();
+        showShortcuts = !showShortcuts;
+        break;
+    }
+  }
+
   function handleSwipe(event: SwipeCustomEvent) {
     const { direction } = event.detail;
     if (direction === "left") {
@@ -33,10 +63,13 @@
     }
   }
 
+  function toggleAnswer() {
+    isAnswerBlurred = !isAnswerBlurred;
+  }
+
   async function loadQuestions() {
     try {
       isLoading = true;
-      let array = [];
       let filter = "";
 
       userInput.practiceQuestions.forEach((qu: QuestionId) => {
@@ -44,7 +77,6 @@
       });
       filter = `(${filter.slice(0, filter.length - 2)})`;
 
-      //   const filter = topicId ? `topic = "${topicId}"` : "";
       const records = await pb.collection("Cards").getFullList<CardsRecord>({ filter });
       questions = shuffleArray([...records]);
     } finally {
@@ -70,10 +102,10 @@
         return;
       }
 
-      (await pb.collection("Cards").update(current.id, {
+      await pb.collection("Cards").update(current.id, {
         level: Math.max(0, current.level + change),
         levelChanges: current.levelChanges + 1,
-      })) as ListResult<CardsRecord>;
+      });
       nextQuestion();
     } catch (error) {
       console.error("Failed to update level:", error);
@@ -86,100 +118,284 @@
   }
 
   function nextQuestion() {
-    console.log(currentIndex, questions.length);
     if (currentIndex < questions.length - 1) {
       currentIndex++;
-      showAnswer = false;
+      isAnswerBlurred = true;
     } else {
       exitPractice();
     }
-    // if (currentIndex === questions.length - 1) {
-    //   console.log()
-    //   exitPractice();
-    // }
   }
 
   function previousQuestion() {
     if (currentIndex > 0) {
       currentIndex--;
-      showAnswer = false;
+      isAnswerBlurred = true;
     }
-  }
-
-  function skipQuestion() {
-    nextQuestion();
   }
 </script>
 
-<div use:swipe={() => ({ timeframe: 300, minSwipeDistance: 60 })} onswipe={handleSwipe} class="max-w-2xl mx-auto p-4">
-  <nav class="flex gap-4">
-    <!-- {#if userInput.currentMode === "menu" && ["topicQuestions", "allQuestions"].includes(userInput.currentView)} -->
-    <button onclick={exitPractice}> Exit Practice Selection </button>
-    <!-- {/if} -->
-  </nav>
+<div use:swipe={() => ({ timeframe: 300, minSwipeDistance: 60 })} onswipe={handleSwipe} class="practice-container">
+  <div class="shortcuts-list" class:visible={showShortcuts}>
+    <div>Keyboard Shortcuts:</div>
+    <div><kbd>k</kbd> or <kbd>space</kbd> - Toggle Answer</div>
+    <div><kbd>l</kbd> - Next Question</div>
+    <div><kbd>j</kbd> - Previous Question</div>
+    <div><kbd>m</kbd> - Knew It (+1)</div>
+    <div><kbd>n</kbd> - Didn't Know (-1)</div>
+    <div><kbd>?</kbd> - Toggle This Help</div>
+  </div>
 
-  {#if questions.length === 0}
-    <div class="text-center">
-      <button onclick={() => loadQuestions()} class="px-4 py-2 bg-blue-500 text-white rounded" disabled={isLoading}>
-        Start Study Session
-      </button>
-    </div>
-  {:else if questions[currentIndex]}
-    <div class="space-y-6">
-      <div class="text-sm text-gray-500">
-        Question {currentIndex + 1} of {questions.length}
+  <div class="content-wrapper">
+    <nav>
+      <button onclick={exitPractice} class="nav-button"> Exit Practice Selection </button>
+    </nav>
+
+    {#if questions.length === 0}
+      <div class="card center-card">
+        <button onclick={() => loadQuestions()} class="button button-primary" disabled={isLoading}>
+          Start Study Session
+        </button>
       </div>
+    {:else if questions[currentIndex]}
+      <div class="practice-content">
+        <div class="progress-text">
+          Question {currentIndex + 1} of {questions.length}
+        </div>
 
-      <div class="p-4 bg-white rounded shadow">
-        <div class="font-medium mb-4">{questions[currentIndex].question}</div>
+        <div class="card">
+          <div class="question-text">
+            {questions[currentIndex].question}
+          </div>
 
-        {#if !showAnswer}
-          <button onclick={() => (showAnswer = true)} class="w-full py-2 text-blue-500 border border-blue-500 rounded">
-            Show Answer
-          </button>
-        {:else}
-          <div class="p-4 bg-gray-50 rounded">
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class="answer-text" class:blurred={isAnswerBlurred} onclick={toggleAnswer}>
             {questions[currentIndex].answer}
           </div>
-
-          <div class="flex gap-4 mt-4">
-            <button
-              onclick={() => {
-                updateLevel(-1);
-              }}
-              class="flex-1 py-2 bg-red-500 text-white rounded"
-            >
-              Didn't Know (-1)
-            </button>
-            <button
-              onclick={() => {
-                updateLevel(1);
-              }}
-              class="flex-1 py-2 bg-green-500 text-white rounded"
-            >
-              Knew It (+1)
-            </button>
-          </div>
-        {/if}
+        </div>
       </div>
 
-      <div class="flex justify-between">
-        <button
-          onclick={previousQuestion}
-          disabled={currentIndex === 0}
-          class="px-4 py-2 text-gray-600 disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <!-- <button onclick={skipQuestion} class="px-4 py-2 text-gray-600"> Skip </button> -->
-        <button
-          onclick={nextQuestion}
-          disabled={currentIndex === questions.length - 1}
-          class="px-4 py-2 text-gray-600 disabled:opacity-50"
-        >
-          Next
-        </button>
+      <div class="fixed-bottom">
+        <div class="button-container">
+          <button onclick={() => updateLevel(-1)} class="button button-danger">
+            Didn't Know (-1)
+            <span class="shortcut-hint">n</span>
+          </button>
+          <button onclick={() => updateLevel(1)} class="button button-success">
+            Knew It (+1)
+            <span class="shortcut-hint">m</span>
+          </button>
+        </div>
+
+        <div class="navigation-buttons">
+          <button onclick={previousQuestion} disabled={currentIndex === 0} class="nav-button">
+            Previous
+            <span class="shortcut-hint">j</span>
+          </button>
+          <button onclick={nextQuestion} disabled={currentIndex === questions.length - 1} class="nav-button">
+            Next
+            <span class="shortcut-hint">l</span>
+          </button>
+        </div>
       </div>
-    </div>
-  {/if}
+    {/if}
+  </div>
 </div>
+
+<style>
+  .practice-container {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1a1a1a;
+    padding: clamp(0.5rem, 2vw, 1.5rem);
+    padding-bottom: calc(clamp(0.5rem, 2vw, 1.5rem) + 160px);
+  }
+
+  .content-wrapper {
+    width: 100%;
+    max-width: clamp(350px, 90vw, 800px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 80vh;
+    position: relative;
+  }
+
+  .card {
+    background: #2a2a2a;
+    border-radius: 1rem;
+    padding: clamp(1rem, 3vw, 2rem);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: clamp(1rem, 4vw, 2rem) 0;
+  }
+
+  .center-card {
+    display: flex;
+    justify-content: center;
+  }
+
+  .question-text {
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    color: #e5e5e5;
+  }
+
+  .answer-text {
+    background-color: #333333;
+    padding: clamp(1rem, 2vw, 1.25rem);
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+    color: #e5e5e5;
+    font-size: clamp(0.875rem, 2vw, 1.25rem);
+    cursor: pointer;
+    transition: filter 0.3s ease;
+  }
+
+  .answer-text.blurred {
+    filter: blur(5px);
+  }
+
+  .answer-text:hover {
+    opacity: 0.9;
+  }
+
+  .fixed-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    padding: 1rem clamp(1rem, 5vw, 2rem);
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: clamp(350px, 90vw, 800px);
+    margin: 0 auto;
+  }
+
+  .button-container {
+    display: flex;
+    gap: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  .button {
+    flex: 1;
+    padding: clamp(0.5rem, 2vw, 0.75rem);
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition:
+      background-color 0.2s,
+      transform 0.1s;
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+  }
+
+  .button:active {
+    transform: translateY(1px);
+  }
+
+  .button.full-width {
+    width: 100%;
+  }
+
+  .button-primary {
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  .button-primary:hover {
+    background-color: #2563eb;
+  }
+
+  .button-success {
+    background-color: #10b981;
+    color: white;
+  }
+
+  .button-success:hover {
+    background-color: #059669;
+  }
+
+  .button-danger {
+    background-color: #ef4444;
+    color: white;
+  }
+
+  .button-danger:hover {
+    background-color: #dc2626;
+  }
+
+  .nav-button {
+    padding: clamp(0.375rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1rem);
+    color: #e5e5e5;
+    border-radius: 0.5rem;
+    background: transparent;
+    transition: background-color 0.2s;
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+  }
+
+  .nav-button:hover {
+    background-color: #333333;
+  }
+
+  .nav-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .progress-text {
+    text-align: center;
+    color: #a3a3a3;
+    font-size: clamp(0.75rem, 1.5vw, 0.875rem);
+    margin-bottom: clamp(0.75rem, 2vw, 1rem);
+  }
+
+  .navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 clamp(0.25rem, 1vw, 0.5rem);
+  }
+
+  .shortcut-hint {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    margin-left: 0.5rem;
+  }
+
+  .shortcuts-list {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: #2a2a2a;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: #a3a3a3;
+    display: none;
+    z-index: 10;
+  }
+
+  .shortcuts-list.visible {
+    display: block;
+  }
+
+  .shortcuts-list kbd {
+    background: #333333;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    margin: 0 0.25rem;
+    color: #e5e5e5;
+  }
+
+  @media (min-width: 768px) {
+    .shortcuts-list {
+      display: block;
+    }
+  }
+</style>

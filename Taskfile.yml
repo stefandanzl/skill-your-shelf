@@ -24,6 +24,9 @@ tasks:
     cmds:
       - npm i
       - touch .env
+  pb-download:
+    dir: pocketbase
+    cmd: wget https://cdn.danzl.it/apps/pocketbase.exe
   example:
     aliases:
       - seed
