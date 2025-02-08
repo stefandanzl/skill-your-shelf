@@ -19,3 +19,8 @@ export const userInput = $state<{
     id: "",
   },
 });
+
+export const recordsData = $state<{
+  topics: TopicsRecord[];
+  questions: Question[];
+}>({ topics: [], questions: [] });

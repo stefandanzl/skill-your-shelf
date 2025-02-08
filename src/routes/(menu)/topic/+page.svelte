@@ -1,14 +1,13 @@
 <script lang="ts">
-  import { pb } from "$lib/client";
+  import { pb, loadTopics } from "$lib/client.svelte";
   import { type TopicsRecord, type CardsRecord } from "$lib/pocketbase-types";
   import type { ListResult } from "pocketbase";
-  import { userInput } from "$lib/state.svelte";
+  import { userInput, recordsData } from "$lib/state.svelte";
   //   import QuestionList from "./QuestionList.svelte";
   import ShortList from "$lib/ShortList.svelte";
   import { goto } from "$app/navigation";
-  // let { topics, ...rest } = $props();
 
-  let topics = $state<TopicsRecord[]>([]);
+  // let topics = $state<TopicsRecord[]>([]);
   let bucketCounts = $state<Record<string, number>>({});
   let targetLevel = $state<number>(0);
   let selectedLevels = $state<number[]>([]);
@@ -23,13 +22,6 @@
     questionList = [];
   }
 
-  async function loadTopics() {
-    const records = await pb.collection("topics").getList<TopicsRecord>(1, 50, {
-      sort: "name",
-    });
-    topics = records.items;
-  }
-
   $effect(() => {
     console.log("loadTopics");
     loadTopics();
@@ -39,12 +31,12 @@
 <div class="header">
   <h2 class="title">Select a Topic</h2>
   <div class="topic-list">
-    {#each topics as topic}
+    {#each recordsData.topics as topic}
       <button
         class="topic-card"
         onclick={() => {
           handleTopicSelect(topic);
-          goto("./view");
+          goto("topic/view");
         }}
       >
         <h3 class="topic-name">{topic.name}</h3>
