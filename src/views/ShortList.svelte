@@ -2,54 +2,99 @@
   import type { CardsRecord } from "../lib/pocketbase-types";
   let { questionList, targetLevel }: { questionList: CardsRecord[]; targetLevel: number } = $props();
 
-  function getColor(level: number | undefined): string {
-    if (typeof level === "undefined") level = 0;
-    const startColor = "#482D2D"; // default start color (white)
-    const endColor = "#345634"; // default end color (black)
-    function hexToRgb(hex: string) {
-      const bigint = parseInt(hex.slice(1), 16);
-      const r = (bigint >> 16) & 255;
-      const g = (bigint >> 8) & 255;
-      const b = bigint & 255;
-      return [r, g, b];
-    }
+  function getLevelColor(level: number | undefined): string {
+    if (typeof level === "undefined") return "#2a2a2a";
 
-    function rgbToHex(r: number, g: number, b: number) {
-      return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-    }
+    // Different color schemes based on level
+    const colorSchemes = [
+      "#2a2a2a", // Level 0 - Dark gray
+      "#374151", // Level 1 - Slate
+      "#1e3a8a", // Level 2 - Dark blue
+      "#065f46", // Level 3 - Dark green
+      "#7c2d12", // Level 4 - Dark orange
+      "#581c87", // Level 5+ - Dark purple
+    ];
 
-    const startRgb = hexToRgb(startColor);
-    const endRgb = hexToRgb(endColor);
-
-    const r = Math.round(startRgb[0] + (endRgb[0] - startRgb[0]) * (level / targetLevel));
-    const g = Math.round(startRgb[1] + (endRgb[1] - startRgb[1]) * (level / targetLevel));
-    const b = Math.round(startRgb[2] + (endRgb[2] - startRgb[2]) * (level / targetLevel));
-
-    return rgbToHex(r, g, b);
+    return colorSchemes[Math.min(level, colorSchemes.length - 1)];
   }
 </script>
 
-<div class="overflow-x-auto mt-4">
-  <table class="min-w-full">
+<div class="scroll-container">
+  <table class="question-table">
     <thead>
       <tr>
-        <th class="px-4 py-2">Question</th>
-        <th class="px-4 py-2">Answer</th>
-        <th class="px-4 py-2">Chapter</th>
-        <th class="px-4 py-2">Level</th>
-        <th class="px-4 py-2">Difficulty</th>
+        <th class="table-header">Question</th>
+        <th class="table-header">Answer</th>
+        <th class="table-header">Chapter</th>
+        <th class="table-header">Level</th>
+        <th class="table-header">Difficulty</th>
       </tr>
     </thead>
     <tbody>
       {#each questionList as question}
-        <tr class="border-t"> </tr><tr class="border-t" style="background-color: {getColor(question.level)};">
-          <td class="px-4 py-2">{question.question}</td>
-          <td class="px-4 py-2">{question.answer}</td>
-          <td class="px-4 py-2">{question.chapter}</td>
-          <td class="px-4 py-2">{question.level}</td>
-          <td class="px-4 py-2">{question.difficulty}</td>
+        <tr class="table-row" style="background-color: {getLevelColor(question.level)};">
+          <td class="table-cell question-cell">{question.question}</td>
+          <td class="table-cell answer-cell">{question.answer}</td>
+          <td class="table-cell meta-cell">{question.chapter || "-"}</td>
+          <td class="table-cell meta-cell">{question.level || "0"}</td>
+          <td class="table-cell meta-cell">{question.difficulty || "-"}</td>
         </tr>
       {/each}
     </tbody>
   </table>
 </div>
+
+<style>
+  .question-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+    margin: 1rem 0;
+  }
+
+  .table-header {
+    text-align: left;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+  }
+
+  .table-row {
+    transition: transform 0.2s;
+  }
+
+  .table-row:hover {
+    transform: translateX(4px);
+  }
+
+  .table-cell {
+    padding: 1rem;
+    color: #e5e5e5;
+    border-top: 1px solid #404040;
+  }
+
+  .question-cell {
+    max-width: 300px;
+    font-weight: 500;
+  }
+
+  .answer-cell {
+    max-width: 300px;
+    color: #94a3b8;
+  }
+
+  .meta-cell {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #94a3b8;
+  }
+
+  .scroll-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+    border-radius: 0.5rem;
+    background: #1a1a1a;
+    padding: 1rem;
+  }
+</style>

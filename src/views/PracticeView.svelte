@@ -167,31 +167,37 @@
           Question {currentIndex + 1} of {questions.length}
         </div>
 
-        {#key currentIndex}
-          <div in:fly|local={{ x: direction === "forward" ? 100 : -100, duration: 500 }}>
-            <div class="card question-card">
-              <div class="question-text">
-                {questions[currentIndex].question}
+        <div class="animation-container">
+          {#key currentIndex}
+            <div
+              class="animation-slide"
+              in:fly|local={{ x: direction === "forward" ? 1000 : -1000, duration: 500 }}
+              out:fly|local={{ x: direction === "forward" ? -1000 : 1000, duration: 500 }}
+            >
+              <div class="card question-card">
+                <div class="question-text">
+                  {questions[currentIndex].question}
+                </div>
               </div>
-            </div>
 
-            <div class="card answer-card" onclick={toggleAnswer}>
-              <div class="answer-text" class:blurred={isAnswerBlurred}>
-                {questions[currentIndex].answer}
+              <div class="card answer-card" onclick={toggleAnswer}>
+                <div class="answer-text" class:blurred={isAnswerBlurred}>
+                  {questions[currentIndex].answer}
+                </div>
               </div>
             </div>
-          </div>
-        {/key}
+          {/key}
+        </div>
       </div>
 
       <div class="fixed-bottom">
         <div class="button-container">
           <button onclick={() => updateLevel(-1)} class="button button-danger">
-            Didn't Know (-1)
+            DRILL
             <span class="shortcut-hint">n</span>
           </button>
           <button onclick={() => updateLevel(1)} class="button button-success">
-            Knew It (+1)
+            SKILL
             <span class="shortcut-hint">m</span>
           </button>
         </div>
@@ -212,6 +218,16 @@
 </div>
 
 <style>
+  .animation-container {
+    position: relative;
+    min-height: clamp(200px, 40vh, 400px);
+  }
+
+  .animation-slide {
+    position: absolute;
+    width: 100%;
+  }
+
   .practice-container {
     min-height: 90vh;
     display: flex;
@@ -416,5 +432,47 @@
     .shortcuts-list {
       display: block;
     }
+  }
+
+  @keyframes drill-glow {
+    0% {
+      box-shadow:
+        0 0 40px #ef4444,
+        0 0 80px #ef4444,
+        0 0 120px #ef4444,
+        0 0 160px #ef4444;
+    }
+    100% {
+      box-shadow:
+        0 0 80px #ef4444,
+        0 0 160px #ef4444,
+        0 0 240px #ef4444,
+        0 0 320px #ef4444;
+    }
+  }
+
+  @keyframes skill-glow {
+    0% {
+      box-shadow:
+        0 0 40px #10b981,
+        0 0 80px #10b981,
+        0 0 120px #10b981,
+        0 0 160px #10b981;
+    }
+    100% {
+      box-shadow:
+        0 0 80px #10b981,
+        0 0 160px #10b981,
+        0 0 240px #10b981,
+        0 0 320px #10b981;
+    }
+  }
+
+  .button-danger:active {
+    animation: drill-glow 2s ease-in-out;
+  }
+
+  .button-success:active {
+    animation: skill-glow 2s ease-in-out;
   }
 </style>
