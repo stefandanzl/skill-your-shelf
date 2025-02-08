@@ -36,7 +36,7 @@
         class="topic-card"
         onclick={() => {
           handleTopicSelect(topic);
-          goto("topic/view");
+          goto(`/topic/${topic.id}/`);
         }}
       >
         <h3 class="topic-name">{topic.name}</h3>

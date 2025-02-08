@@ -1,6 +1,6 @@
 <script lang="ts">
   import { showToast } from "$lib/util";
-  import { pb } from "$lib/client";
+  import { pb } from "$lib/client.svelte";
   import type { CardsRecord, TopicsRecord } from "$lib/pocketbase-types";
   import { userInput } from "$lib/state.svelte";
   import BoolModal from "$lib/BoolModal.svelte";

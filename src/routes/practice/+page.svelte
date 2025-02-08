@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ListResult } from "pocketbase";
-  import { pb } from "$lib/client";
+  import { pb } from "$lib/client.svelte";
   import type { CardsRecord } from "$lib/pocketbase-types";
   import { userInput } from "$lib/state.svelte";
   import type { QuestionId } from "$lib/types";

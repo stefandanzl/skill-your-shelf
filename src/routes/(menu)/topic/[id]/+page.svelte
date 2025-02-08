@@ -5,7 +5,9 @@
   import { userInput } from "$lib/state.svelte";
   //   import QuestionList from "./QuestionList.svelte";
   import ShortList from "$lib/ShortList.svelte";
-  let { topics, ...rest } = $props();
+  // let { topics, ...rest } = $props();
+  import { page } from "$app/state";
+  import { goto } from "$app/navigation";
 
   //   let topics = $state<TopicsRecord[]>([]);
   let bucketCounts = $state<Record<string, number>>({});
@@ -14,6 +16,7 @@
   let questionList = $state<CardsRecord[]>([]);
 
   $effect(() => {
+    console.log("ID = ", page.params.id);
     console.log("loadBucketCounts");
     if (userInput.selectedTopicId) {
       loadBucketCounts(userInput.selectedTopicId);
@@ -104,11 +107,20 @@
 </script>
 
 <div class="nav-buttons">
-  <button class="nav-button" onclick={() => (userInput.selectedTopicId = "")}> ← Back </button>
+  <button
+    class="nav-button"
+    onclick={() => {
+      userInput.selectedTopicId = "";
+      history.back();
+    }}
+  >
+    ← Back
+  </button>
   <button
     class="nav-button"
     onclick={() => {
       userInput.currentView = "topicEdit";
+      goto(`/topic/${page.params.id}/edit`);
     }}
   >
     Edit Topic

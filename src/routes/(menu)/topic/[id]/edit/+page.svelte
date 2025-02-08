@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { pb } from "$lib/client";
+  import { goto } from "$app/navigation";
+  import { page } from "$app/state";
+  import { handleDelete, loadTopic, pb } from "$lib/client.svelte";
   import type { TopicsRecord } from "$lib/pocketbase-types";
-  import { userInput } from "$lib/state.svelte";
+  import { userInput, recordsData } from "$lib/state.svelte";
 
   function onSave() {}
 
@@ -12,27 +14,26 @@
   let targetLevel = $state<number | undefined>();
 
   $effect(() => {
-    if (userInput.selectedTopicId && !topicId) {
-      topicId = userInput.selectedTopicId;
-      loadTopic();
+    topicId = page.params.id;
+
+    // if (userInput.selectedTopicId && !topicId) {
+    //   topicId = userInput.selectedTopicId;
+    //   // loadTopic(topicId);
+    //   console.log(userInput.topic);
+    //   let topic: TopicsRecord | null = userInput.topic;
+
+    if (userInput.topic) {
+      topicName = userInput.topic.name;
+      description = userInput.topic.description;
+      targetLevel = userInput.topic.targetLevel ?? 0;
+      topicId = userInput.topic.id;
+    } else {
+      console.error("No Topic Daata");
     }
+    // }
   });
 
-  async function loadTopic() {
-    try {
-      isLoading = true;
-      const record = await pb.collection("Topics")?.getOne<TopicsRecord>(topicId!);
-      topicName = record.name;
-      description = record.description;
-      targetLevel = record.targetLevel;
-    } catch (error) {
-      console.error("Failed to load topic:", error);
-    } finally {
-      isLoading = false;
-    }
-  }
-
-  async function handleSubmit() {
+  export async function handleSubmit() {
     let response;
     try {
       isLoading = true;
@@ -53,29 +54,19 @@
       isLoading = false;
     }
   }
-
-  async function handleDelete() {
-    if (!topicId || !confirm("Are you sure you want to delete this topic?")) return;
-    try {
-      isLoading = true;
-      const response = await pb.collection("Topics").delete(topicId);
-
-      if (response) {
-        userInput.currentView = "topicQuestions";
-        userInput.selectedTopicId = "";
-      } else {
-        alert("Deletion failed");
-      }
-      onSave();
-    } catch (error) {
-      console.error("Failed to delete topic:", error);
-    }
-  }
 </script>
 
 <div class="container">
   <div class="nav-buttons">
-    <button class="nav-button" onclick={() => (userInput.currentView = "topics")}> ← Back to Topic </button>
+    <button
+      class="nav-button"
+      onclick={() => {
+        userInput.currentView = "topics";
+        history.back();
+      }}
+    >
+      ← Back to Topic
+    </button>
   </div>
 
   <form class="form">
@@ -108,12 +99,26 @@
     </div>
 
     <div class="button-group">
-      <button type="submit" onclick={handleSubmit} disabled={isLoading} class="button button-primary">
+      <button
+        type="submit"
+        onclick={() => {
+          handleSubmit();
+        }}
+        disabled={isLoading}
+        class="button button-primary"
+      >
         {topicId ? "Update" : "Create"} Topic
       </button>
 
       {#if topicId}
-        <button type="button" onclick={handleDelete} disabled={isLoading} class="button button-danger">
+        <button
+          type="button"
+          onclick={() => {
+            handleDelete(topicId);
+          }}
+          disabled={isLoading}
+          class="button button-danger"
+        >
           Delete Topic
         </button>
       {/if}
