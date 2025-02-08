@@ -6,12 +6,14 @@
   import type { QuestionId } from "../lib/types";
   import { pan, swipe, type PanCustomEvent, type GestureCustomEvent, type SwipeCustomEvent } from "svelte-gestures";
   import { onMount, onDestroy } from "svelte";
+  import { fly } from "svelte/transition";
 
   let questions = $state<CardsRecord[]>([]);
   let currentIndex = $state(0);
   let isAnswerBlurred = $state(true);
   let isLoading = $state(false);
   let showShortcuts = $state(false);
+  let direction = $state<"forward" | "backward">("forward");
 
   onMount(() => {
     document.addEventListener("keydown", handleKeydown);
@@ -55,10 +57,10 @@
   }
 
   function handleSwipe(event: SwipeCustomEvent) {
-    const { direction } = event.detail;
-    if (direction === "left") {
+    const { direction: swipeDirection } = event.detail;
+    if (swipeDirection === "left") {
       nextQuestion();
-    } else if (direction === "right") {
+    } else if (swipeDirection === "right") {
       previousQuestion();
     }
   }
@@ -93,6 +95,7 @@
   }
 
   async function updateLevel(change: number) {
+    direction = "forward";
     const current = questions[currentIndex];
     if (!current) return;
 
@@ -119,6 +122,7 @@
 
   function nextQuestion() {
     if (currentIndex < questions.length - 1) {
+      direction = "forward";
       currentIndex++;
       isAnswerBlurred = true;
     } else {
@@ -128,6 +132,7 @@
 
   function previousQuestion() {
     if (currentIndex > 0) {
+      direction = "backward";
       currentIndex--;
       isAnswerBlurred = true;
     }
@@ -162,17 +167,21 @@
           Question {currentIndex + 1} of {questions.length}
         </div>
 
-        <div class="card">
-          <div class="question-text">
-            {questions[currentIndex].question}
-          </div>
+        {#key currentIndex}
+          <div in:fly|local={{ x: direction === "forward" ? 100 : -100, duration: 500 }}>
+            <div class="card question-card">
+              <div class="question-text">
+                {questions[currentIndex].question}
+              </div>
+            </div>
 
-          <!-- svelte-ignore a11y_click_events_have_key_events -->
-          <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <div class="answer-text" class:blurred={isAnswerBlurred} onclick={toggleAnswer}>
-            {questions[currentIndex].answer}
+            <div class="card answer-card" onclick={toggleAnswer}>
+              <div class="answer-text" class:blurred={isAnswerBlurred}>
+                {questions[currentIndex].answer}
+              </div>
+            </div>
           </div>
-        </div>
+        {/key}
       </div>
 
       <div class="fixed-bottom">
@@ -228,7 +237,20 @@
     border-radius: 1rem;
     padding: clamp(1rem, 3vw, 2rem);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: clamp(1rem, 4vw, 2rem) 0;
+    margin: clamp(0.5rem, 2vw, 1rem) 0;
+    overflow: hidden;
+  }
+
+  .question-card {
+    min-height: clamp(100px, 20vh, 200px);
+    display: flex;
+    align-items: center;
+  }
+
+  .answer-card {
+    min-height: clamp(80px, 15vh, 160px);
+    display: flex;
+    align-items: center;
   }
 
   .center-card {
@@ -238,17 +260,14 @@
 
   .question-text {
     font-size: clamp(1rem, 2.5vw, 1.5rem);
-    text-align: center;
-    margin-bottom: 1.5rem;
+    text-align: left;
     line-height: 1.5;
     color: #e5e5e5;
+    width: 100%;
   }
 
   .answer-text {
-    background-color: #333333;
-    padding: clamp(1rem, 2vw, 1.25rem);
-    border-radius: 0.75rem;
-    margin-bottom: 1.5rem;
+    width: 100%;
     color: #e5e5e5;
     font-size: clamp(0.875rem, 2vw, 1.25rem);
     cursor: pointer;
