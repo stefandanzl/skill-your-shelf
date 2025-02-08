@@ -19,8 +19,6 @@
     topics = records.items;
   }
 
-  $inspect("BUCKET Counts", bucketCounts);
-
   async function loadBucketCounts(topicId: string) {
     const records = await pb.collection("cards").getList<CardsRecord>(1, 500, {
       filter: `topicId = "${topicId}"`,
@@ -45,8 +43,6 @@
       },
       {} as Record<string, number>,
     );
-
-    console.log("BUCKET Counts", bucketCounts);
   }
 
   async function loadLevelQuestions() {
@@ -60,7 +56,7 @@
       .filter((lv) => lv <= targetLevel)
       .map((lv) => `level = ${lv}`)
       .join("||");
-    let filter = `topicId = "${userInput.selectedTopicId}" && (${levelFilters}`; //)
+    let filter = `topicId = "${userInput.selectedTopicId}" && (${levelFilters}`;
     if (selectedLevels.includes(targetLevel)) {
       filter += `|| level >= ${targetLevel})`;
     } else {
@@ -72,7 +68,6 @@
       sort: "level",
     });
     questionList = records.items;
-    // userInput.practiceQuestions = [];
     const list: string[] = [];
     questionList.forEach((qu) => {
       list.push(qu.id);
@@ -81,7 +76,9 @@
   }
 
   function handleTopicSelect(topic: TopicsRecord) {
+    userInput.topic = topic;
     userInput.selectedTopicId = topic.id;
+    console.log("TOPIC:", topic);
     targetLevel = topic.targetLevel ?? 0;
     selectedLevels = [];
     questionList = [];
@@ -96,11 +93,30 @@
     loadLevelQuestions();
   }
 
+  function toggleAllLevels() {
+    const availableLevels = Array.from({ length: targetLevel + 1 }, (_, i) => i).filter(
+      (level) => bucketCounts[level?.toString()],
+    );
+    if (selectedLevels.length === availableLevels.length) {
+      selectedLevels = [];
+    } else {
+      selectedLevels = availableLevels;
+    }
+    loadLevelQuestions();
+  }
+
   $effect(() => {
+    console.log("Current targetLevel:", targetLevel);
+    console.log("Selected Topic:", userInput.selectedTopicId);
+  });
+
+  $effect(() => {
+    console.log("loadTopics");
     loadTopics();
   });
 
   $effect(() => {
+    console.log("loadBucketCounts");
     if (userInput.selectedTopicId) {
       loadBucketCounts(userInput.selectedTopicId);
     } else {
@@ -109,6 +125,8 @@
       selectedLevels = [];
       questionList = [];
     }
+
+    // $inspect(targetLevel);
   });
 </script>
 
@@ -125,10 +143,31 @@
           </button>
         {/each}
       </div>
+      <h2 class="title">More</h2>
+      <div class="topic-list">
+        <button
+          class="topic-card"
+          onclick={() => {
+            userInput.currentView = "allQuestions";
+            userInput.selectedTopicId = "";
+          }}
+        >
+          <h3 class="topic-name">All Questions</h3>
+        </button>
+        <button
+          class="topic-card"
+          onclick={() => {
+            userInput.currentView = "topicEdit";
+            userInput.selectedTopicId = "";
+          }}
+        >
+          <h3 class="topic-name">+ Add Topic</h3>
+        </button>
+      </div>
     </div>
   {:else}
     <div class="nav-buttons">
-      <button class="nav-button" onclick={() => (userInput.selectedTopicId = "")}> ← Back to Topics </button>
+      <button class="nav-button" onclick={() => (userInput.selectedTopicId = "")}> ← Back </button>
       <button
         class="nav-button"
         onclick={() => {
@@ -145,10 +184,26 @@
       >
         Edit Questions
       </button>
+
+      <button
+        class="practice-button"
+        class:enabled={userInput.practiceQuestions.length !== 0}
+        disabled={userInput.practiceQuestions.length === 0}
+        onclick={() => {
+          userInput.currentMode = "practice";
+        }}
+      >
+        Practice Selection
+      </button>
     </div>
 
     <h2 class="title">Select a Bucket</h2>
+
     <div class="bucket-list">
+      <button class="all-bucket" onclick={toggleAllLevels}>
+        <span class="all-bucket-title">Level:</span>
+        <span class="all-bucket-title">Count:</span>
+      </button>
       {#each Array.from({ length: targetLevel + 1 }, (_, i) => i) as level}
         <button
           class="bucket-card"
@@ -156,8 +211,8 @@
           disabled={!bucketCounts[level?.toString()]}
           onclick={() => toggleLevel(level)}
         >
-          <span class="bucket-title">Level {level}</span>
-          <span class="bucket-count">{bucketCounts[level?.toString()] || 0} questions</span>
+          <span class="bucket-title">{level}</span>
+          <span class="bucket-count">{bucketCounts[level?.toString()] || 0}</span>
         </button>
       {/each}
     </div>
@@ -189,6 +244,7 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    margin-bottom: 2rem;
   }
 
   .topic-card {
@@ -229,6 +285,7 @@
     display: flex;
     gap: 1rem;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
   }
 
   .nav-button {
@@ -244,20 +301,31 @@
 
   .bucket-list {
     display: flex;
-    flex-direction: column;
+    justify-content: center; /* Center the buckets */
     gap: 1rem;
+    flex-wrap: wrap; /* Allow wrapping if needed */
+    margin: 0 auto; /* Center the container */
   }
 
   .bucket-card {
     background: #2a2a2a;
-    padding: 1.5rem;
-    border-radius: 1rem;
+    color: #3b82f6;
+    height: 5rem;
+    width: 3rem; /* Fixed width */
+    padding: 0 0.5rem;
+    border-radius: 0.5rem;
     border: 1px solid #404040;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: space-around;
     align-items: center;
+  }
+
+  .bucket-card:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
   .bucket-card:disabled {
@@ -271,12 +339,63 @@
   }
 
   .bucket-title {
-    font-size: 1.1rem;
-    color: #e5e5e5;
+    font-size: 2rem;
+    /* color: #e5e5e5; */
+    color: #3b82f6;
+    margin-bottom: 0.5rem;
   }
 
   .bucket-count {
-    font-size: 1.2rem;
+    font-size: 1rem;
+    color: #a3a3a3;
+  }
+
+  .all-bucket {
+    background: #3b82f6;
+    border-color: #2563eb;
+    height: 5rem;
+    width: 5rem; /* Fixed width */
+    padding: 0 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #404040;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .all-bucket-title {
+    font-size: 1.1rem;
     color: #e5e5e5;
+    margin-bottom: 0.5rem;
+  }
+
+  .all-bucket:hover:not(:disabled) {
+    background: #2563eb;
+  }
+
+  .practice-button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+    color: #e5e5e5;
+    background-color: #2a2a2a;
+  }
+
+  .practice-button.enabled {
+    background-color: #10b981;
+    border-color: #059669;
+  }
+
+  .practice-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .bucket-div {
+    display: flex;
+    flex-direction: row;
   }
 </style>

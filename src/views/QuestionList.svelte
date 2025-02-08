@@ -28,7 +28,15 @@
 
 <div>
   <div class="nav-buttons">
-    <button class="nav-button" onclick={() => (userInput.currentView = "topics")}> ← Back to Topic </button>
+    <button
+      class="nav-button"
+      onclick={() => {
+        userInput.currentView = "topics";
+        userInput.practiceQuestions = [];
+      }}
+    >
+      ← Back to Topic
+    </button>
   </div>
   <div class="table-container">
     <table class="question-table">

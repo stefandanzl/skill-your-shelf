@@ -150,7 +150,14 @@
 
 <div>
   <div class="nav-buttons">
-    <button class="nav-button" onclick={() => (userInput.currentView = "topics")}> ← Back to Topic </button>
+    <button
+      class="nav-button"
+      onclick={() => {
+        userInput.currentView = "topicQuestions";
+      }}
+    >
+      ← Back to Questions
+    </button>
   </div>
   <div class="form-container">
     <form class="form">

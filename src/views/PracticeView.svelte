@@ -15,6 +15,9 @@
   let showShortcuts = $state(false);
   let direction = $state<"forward" | "backward">("forward");
 
+  let knowBtn = $state<HTMLButtonElement>();
+  let notKnowBtn = $state<HTMLButtonElement>();
+
   onMount(() => {
     document.addEventListener("keydown", handleKeydown);
     return () => {
@@ -43,11 +46,11 @@
         break;
       case "m":
         event.preventDefault();
-        if (!isAnswerBlurred) updateLevel(1);
+        if (!isAnswerBlurred) knowBtn?.click();
         break;
       case "n":
         event.preventDefault();
-        if (!isAnswerBlurred) updateLevel(-1);
+        if (!isAnswerBlurred) notKnowBtn?.click();
         break;
       case "?":
         event.preventDefault();
@@ -192,11 +195,11 @@
 
       <div class="fixed-bottom">
         <div class="button-container">
-          <button onclick={() => updateLevel(-1)} class="button button-danger">
+          <button bind:this={knowBtn} onclick={() => updateLevel(-1)} class="button button-danger">
             DRILL
             <span class="shortcut-hint">n</span>
           </button>
-          <button onclick={() => updateLevel(1)} class="button button-success">
+          <button bind:this={notKnowBtn} onclick={() => updateLevel(1)} class="button button-success">
             SKILL
             <span class="shortcut-hint">m</span>
           </button>
