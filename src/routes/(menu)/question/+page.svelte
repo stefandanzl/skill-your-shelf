@@ -33,6 +33,7 @@
       onclick={() => {
         userInput.currentView = "topics";
         userInput.practiceQuestions = [];
+        history.back();
       }}
     >
       ← Back to Topic

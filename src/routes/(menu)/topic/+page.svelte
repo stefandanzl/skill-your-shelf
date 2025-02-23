@@ -52,6 +52,7 @@
       onclick={() => {
         userInput.currentView = "allQuestions";
         userInput.selectedTopicId = "";
+        goto("/question/");
       }}
     >
       <h3 class="topic-name">All Questions</h3>

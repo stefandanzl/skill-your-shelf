@@ -5,6 +5,8 @@
   import { userInput } from "$lib/state.svelte";
   import BoolModal from "$lib/BoolModal.svelte";
   import { goto } from "$app/navigation";
+  import { page } from "$app/state";
+  import type { QuestionId } from "$lib/types";
 
   function onSave() {
     showToast("Question saved successfully!");
@@ -21,6 +23,8 @@
   let modalData = $state({ show: false, text: "", result: undefined });
 
   $effect(() => {
+    userInput.questionId = page.route.id as QuestionId;
+
     $inspect(userInput);
     if (userInput.questionId) {
       loadQuestion();
