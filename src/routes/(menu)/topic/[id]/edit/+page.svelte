@@ -13,23 +13,22 @@
   let topicId = $state<string | undefined>("");
   let targetLevel = $state<number | undefined>();
 
+  let isNew = false;
+
   $effect(() => {
-    topicId = page.params.id;
-
-    // if (userInput.selectedTopicId && !topicId) {
-    //   topicId = userInput.selectedTopicId;
-    //   // loadTopic(topicId);
-    //   console.log(userInput.topic);
-    //   let topic: TopicsRecord | null = userInput.topic;
-
-    if (userInput.topic) {
-      topicName = userInput.topic.name;
-      description = userInput.topic.description;
-      targetLevel = userInput.topic.targetLevel ?? 0;
-      topicId = userInput.topic.id;
+    if (page.params.id === "new") {
+      isNew = true;
     } else {
-      console.error("No Topic Daata");
+      if (userInput.topic) {
+        topicName = userInput.topic.name;
+        description = userInput.topic.description;
+        targetLevel = userInput.topic.targetLevel ?? 0;
+        topicId = userInput.topic.id;
+      } else {
+        console.error("No Topic Daata");
+      }
     }
+
     // }
   });
 
@@ -42,8 +41,8 @@
         description,
         targetLevel,
       };
-      if (topicId) {
-        response = await pb.collection("Topics").update(topicId, data);
+      if (!isNew) {
+        response = await pb.collection("Topics").update(topicId as string, data);
       } else {
         response = await pb.collection("Topics").create(data);
       }

@@ -111,7 +111,7 @@
     class="nav-button"
     onclick={() => {
       userInput.selectedTopicId = "";
-      history.back();
+      goto("/topic");
     }}
   >
     ← Back
@@ -140,6 +140,7 @@
     disabled={userInput.practiceQuestions.length === 0}
     onclick={() => {
       userInput.currentMode = "practice";
+      goto("/practice");
     }}
   >
     Practice Selection

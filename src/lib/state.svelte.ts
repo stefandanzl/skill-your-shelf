@@ -1,5 +1,5 @@
 import type { View, TopicId, QuestionId, Mode } from "$lib/types";
-import type { TopicsRecord } from "./pocketbase-types";
+import type { TopicsRecord, CardsRecord } from "./pocketbase-types";
 
 //currentView, selectedTopicId, questionId
 export const userInput = $state<{
@@ -22,5 +22,5 @@ export const userInput = $state<{
 
 export const recordsData = $state<{
   topics: TopicsRecord[];
-  questions: Question[];
+  questions: CardsRecord[];
 }>({ topics: [], questions: [] });

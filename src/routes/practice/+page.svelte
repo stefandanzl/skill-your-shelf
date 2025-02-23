@@ -15,6 +15,7 @@
   let isLoading = $state(false);
   let showShortcuts = $state(false);
   let direction = $state<"forward" | "backward">("forward");
+  let started = $state<boolean>(false);
 
   let knowBtn = $state<HTMLButtonElement>();
   let notKnowBtn = $state<HTMLButtonElement>();
@@ -61,6 +62,9 @@
   }
 
   function handleSwipe(event: SwipeCustomEvent) {
+    if (!started) {
+      return;
+    }
     const { direction: swipeDirection } = event.detail;
     if (swipeDirection === "left") {
       nextQuestion();
@@ -74,6 +78,7 @@
   }
 
   async function loadQuestions() {
+    started = true;
     try {
       isLoading = true;
       let filter = "";
@@ -123,7 +128,8 @@
     userInput.currentMode = "menu";
 
     userInput.practiceQuestions = [];
-    goto("/topic/view");
+    // goto("/topic/");
+    history.back();
   }
 
   function nextQuestion() {
@@ -236,12 +242,14 @@
 
   .practice-container {
     min-height: 90vh;
+    max-width: 100vw;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #1a1a1a;
     padding: clamp(0.5rem, 2vw, 1.5rem);
     padding-bottom: calc(clamp(0.5rem, 2vw, 1.5rem) + 160px);
+    overflow-x: hidden;
   }
 
   .content-wrapper {

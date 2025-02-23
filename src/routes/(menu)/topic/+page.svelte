@@ -61,6 +61,7 @@
       onclick={() => {
         userInput.currentView = "topicEdit";
         userInput.selectedTopicId = "";
+        goto("/topic/new/edit");
       }}
     >
       <h3 class="topic-name">+ Add Topic</h3>
